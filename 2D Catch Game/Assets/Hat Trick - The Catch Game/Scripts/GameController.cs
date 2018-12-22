@@ -19,7 +19,10 @@ public class GameController : MonoBehaviour {
 	private float maxWidth;
 	private bool playing;
 	private int ballCount;
-
+	 public GameObject watchPowerUp;
+	public int PowerUpCounts;
+	public float startWaitPU;
+	public float waveWaitPU;
 	void Awake()
 	{
 		current = this;
@@ -35,7 +38,7 @@ public class GameController : MonoBehaviour {
 	  Vector3 targetWidth = cam.ScreenToWorldPoint (upperCorner);
 	  float ballWidth = balls[0].GetComponent<Renderer>().bounds.extents.x;
 	  maxWidth = targetWidth.x - ballWidth;
-
+	
 	UpdateText();
 	}
 
@@ -54,11 +57,13 @@ public class GameController : MonoBehaviour {
 		startButton.SetActive (false);
 		hatController.ToggleControl (true);
 	    StartCoroutine (Spawn ());
+		StartCoroutine (WatchSpawnPowerUp ());
 	}
 
 	public void BallCountUpdate(){
 		ballCount --;
 	}
+
     IEnumerator Spawn () {
 		yield return new WaitForSeconds (2.0f);
 		playing = true;
@@ -81,6 +86,24 @@ public class GameController : MonoBehaviour {
 		restartButton.SetActive(true);
     }
 
+    IEnumerator WatchSpawnPowerUp()
+	{
+	   yield return new WaitForSeconds (startWaitPU);
+	   playing = true;
+	   while (timeLeft > 0)
+	   {	
+		  for(int i = 0; i < PowerUpCounts; i++)
+		  {
+			Vector3 spawnPosition = new Vector3 (Random.Range(-maxWidth, maxWidth),
+			transform.position.y,
+			0.0f
+			);
+			Quaternion spawnRotation = Quaternion.identity;
+			Instantiate(watchPowerUp, spawnPosition, spawnRotation);
+		   }
+		   yield return new WaitForSeconds (waveWaitPU);
+ 		}
+	}
 	void UpdateText (){
         timerText.text = "Time Left:\n" + Mathf.RoundToInt (timeLeft);
 	}
